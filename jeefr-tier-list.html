@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JeeForReal — Maths Chapter Tier List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --ink:#1a1030; --paper:#fdf7ec; --muted:#a693cc; --cyan:#22d3ee;
+  --s:#ff2e63; --a:#ff8a3d; --b:#ffd93d; --c:#4ade80; --d:#60a5fa;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#05030b;overflow:hidden;
+  font-family:"Fredoka",system-ui,-apple-system,"Segoe UI",sans-serif}
+#fit{position:fixed;inset:0;display:grid;place-items:center}
+
+/* fills the window by default; everything inside is sized off the board itself,
+   so it stays proportional whether the board is the window or a 1080x1920 canvas */
+#stage{width:100%;height:100%;container-type:size;position:relative;
+  transform-origin:center;
+  background:
+    radial-gradient(120% 45% at 50% -8%,#2d1657 0%,transparent 60%),
+    radial-gradient(110% 35% at 50% 110%,#0c2b40 0%,transparent 58%),
+    linear-gradient(#130d24,#0a0714);
+  color:var(--paper);display:flex;flex-direction:column;padding:2cqh 3cqw 1.4cqh}
+#stage.reel{position:absolute;left:50%;top:50%;width:1080px;height:1920px;flex:none}
+
+header{flex:none;text-align:center;margin-bottom:1cqh}
+.brand{font-size:3.3cqh;font-weight:700;letter-spacing:.1cqw;line-height:1}
+.brand i{font-style:normal;color:var(--cyan);text-shadow:0 0 1.4cqh rgba(34,211,238,.5)}
+.sub{margin-top:.4cqh;font-size:1.25cqh;font-weight:500;color:var(--muted)}
+
+#shelves{flex:1;min-height:0;display:flex;flex-direction:column;gap:.55cqh}
+.tier{display:flex;flex:1;min-height:5cqh;border-radius:1cqh;overflow:hidden;
+  background:rgba(255,255,255,.035);outline:.12cqh solid rgba(255,255,255,.07);
+  outline-offset:-.12cqh;transition:outline-color .14s,background .14s}
+.tier.over{outline-color:var(--cyan);background:rgba(34,211,238,.1)}
+.badge{width:10.4cqw;flex:none;display:grid;place-items:center;font-size:3.4cqh;
+  font-weight:700;color:#150b24;text-shadow:0 .1cqh 0 rgba(255,255,255,.28)}
+.tier[data-t="S"] .badge{background:linear-gradient(155deg,#ff6b93,var(--s))}
+.tier[data-t="A"] .badge{background:linear-gradient(155deg,#ffb877,var(--a))}
+.tier[data-t="B"] .badge{background:linear-gradient(155deg,#ffeb9b,var(--b))}
+.tier[data-t="C"] .badge{background:linear-gradient(155deg,#9af2be,var(--c))}
+.tier[data-t="D"] .badge{background:linear-gradient(155deg,#a5cbff,var(--d))}
+.shelf{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-content:flex-start;
+  gap:.5cqh .8cqw;padding:.7cqh 1.3cqw;background:rgba(8,4,18,.42)}
+
+.card{flex:0 0 auto;width:12.2cqw;aspect-ratio:1/1;display:flex;align-items:center;
+  justify-content:center;text-align:center;padding:.55cqh .45cqw;overflow:hidden;
+  border-radius:.65cqh;border-top:.36cqh solid var(--edge);background:var(--tint);
+  cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+  box-shadow:0 .3cqh .7cqh rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.6)}
+.card span{display:block;width:100%;font-size:1cqh;font-weight:700;
+  line-height:1.12;color:var(--ink)}
+.card.picked{outline:.2cqh solid var(--cyan);outline-offset:.14cqh;
+  box-shadow:0 0 1.4cqh rgba(34,211,238,.6)}
+.card.lifted{opacity:.25}
+.card.in{animation:land .3s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes land{from{transform:translateY(-1.2cqh) rotate(-5deg) scale(.9);opacity:0}to{transform:none;opacity:1}}
+.card.ghost{position:absolute;z-index:30;pointer-events:none;opacity:.96;
+  transform:translate(-50%,-50%) rotate(-3deg) scale(1.08);
+  box-shadow:0 1cqh 1.8cqh rgba(0,0,0,.6)}
+.shelf.dense .card{width:7.6cqw}
+.shelf.tight .card{width:4.8cqw}
+
+#tray{flex:none;height:33cqh;margin-top:.62cqh;display:flex;flex-direction:column;
+  border-radius:1cqh;overflow:hidden;background:rgba(255,255,255,.04);
+  outline:.12cqh solid rgba(255,255,255,.09);outline-offset:-.12cqh;
+  transition:outline-color .14s}
+#tray.over{outline-color:var(--cyan)}
+#traybar{flex:none;display:flex;justify-content:space-between;align-items:center;
+  padding:.62cqh 1.85cqw;background:rgba(255,255,255,.05);font-size:1.1cqh;font-weight:600}
+#traybar span{color:var(--muted);font-weight:500}
+#pool{flex:1;min-height:0;overflow:auto;display:flex;flex-wrap:wrap;
+  align-content:flex-start;gap:.5cqh .8cqw;padding:.8cqh 1.6cqw}
+#pool:empty::after{content:"Every chapter is on the board.";color:var(--muted);
+  font-size:1.15cqh;font-weight:500;margin:auto}
+
+#hints{flex:none;margin-top:.62cqh;display:flex;justify-content:center;align-items:center;
+  gap:1cqw;font-size:.9cqh;font-weight:500;color:#6f5d93}
+#hints kbd{display:inline-block;margin:0 .1cqw;padding:.1cqh .45cqw;border-radius:.3cqh;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);
+  color:#c4b4e2;font-family:inherit;font-size:.82cqh;font-weight:600}
+#hints.hide{visibility:hidden}
+#reelbtn{font-size:.85cqh;padding:.35cqh 1cqw;border-radius:.5cqh;
+  background:rgba(34,211,238,.16);color:var(--cyan);border:1px solid rgba(34,211,238,.4)}
+
+#out{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;gap:1.1cqh;
+  padding:3cqh 5cqw;background:rgba(7,4,15,.985);backdrop-filter:blur(8px)}
+#out.on{display:flex}
+#out h2{font-size:2.2cqh;font-weight:700}
+#outbody{flex:1;overflow:auto;white-space:pre-wrap;font-size:1.15cqh;line-height:1.6;color:#d6c9f0}
+#out .row{display:flex;gap:1.2cqw}
+#out button{font-size:1.05cqh;padding:.7cqh 1.6cqw;border-radius:.6cqh}
+button{font-family:inherit;font-weight:600;border:0;cursor:pointer;
+  background:var(--cyan);color:#06222a}
+button.ghost{background:rgba(255,255,255,.12);color:var(--paper)}
+button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div id="fit"><div id="stage">
+
+  <header>
+    <div class="brand">JEE <i>FOR</i> REAL</div>
+    <div class="sub">Maths chapter tier list</div>
+  </header>
+
+  <div id="shelves"></div>
+
+  <div id="tray">
+    <div id="traybar">
+      <b>Chapters</b>
+      <span id="remain"></span>
+    </div>
+    <div id="pool"></div>
+  </div>
+
+  <div id="hints">
+    <span>Drag a chapter onto a tier, or tap it then press
+    <kbd>S</kbd><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd></span>
+    <span><kbd>X</kbd> list · <kbd>H</kbd> hide · <kbd>R</kbd> reset</span>
+    <button id="reelbtn">Reel size 9:16</button>
+  </div>
+
+  <div id="out">
+    <h2>Your tier list</h2>
+    <div id="outbody"></div>
+    <div class="row">
+      <button id="copy">Copy list</button>
+      <button class="ghost" id="close">Back to the board</button>
+    </div>
+  </div>
+
+</div></div>
+
+<script>
+const GROUPS={
+  algebra: {edge:"#6d28d9",tint:"#ece6fe"},
+  trig:    {edge:"#be185d",tint:"#fce7f3"},
+  coord:   {edge:"#0e7490",tint:"#d4f7fb"},
+  calculus:{edge:"#b45309",tint:"#fdf0cd"},
+  vectors: {edge:"#047857",tint:"#d3f7e6"},
+  chance:  {edge:"#be123c",tint:"#ffe3e7"},
+};
+
+const CHAPTERS=[
+  ["Sets, Relations & Functions","Sets & Functions","algebra"],
+  ["Complex Numbers","Complex Numbers","algebra"],
+  ["Quadratic Equations","Quadratic Equations","algebra"],
+  ["Matrices & Determinants","Matrices","algebra"],
+  ["Permutations & Combinations","Perm & Comb","algebra"],
+  ["Binomial Theorem","Binomial Theorem","algebra"],
+  ["Sequences & Series","Sequences & Series","algebra"],
+  ["Trigonometric Identities","Trig Identities","trig"],
+  ["Trigonometric Equations","Trig Equations","trig"],
+  ["Inverse Trigonometry","Inverse Trig","trig"],
+  ["Solution of Triangles","Solution of Triangles","trig"],
+  ["Straight Lines","Straight Lines","coord"],
+  ["Circles","Circles","coord"],
+  ["Parabola","Parabola","coord"],
+  ["Ellipse","Ellipse","coord"],
+  ["Hyperbola","Hyperbola","coord"],
+  ["Limits","Limits","calculus"],
+  ["Continuity & Differentiability","Continuity & Diff","calculus"],
+  ["Application of Derivatives","Derivatives (AOD)","calculus"],
+  ["Indefinite Integration","Indefinite Integration","calculus"],
+  ["Definite Integration","Definite Integration","calculus"],
+  ["Area Under Curves","Area Under Curves","calculus"],
+  ["Differential Equations","Differential Equations","calculus"],
+  ["Vector Algebra","Vector Algebra","vectors"],
+  ["3D Geometry","3D Geometry","vectors"],
+  ["Probability","Probability","chance"],
+  ["Statistics","Statistics","chance"],
+].map(function(r,i){return {id:i,name:r[0],short:r[1],group:r[2]};});
+
+const TIERS=["S","A","B","C","D"];
+const stageEl=document.getElementById("stage");
+const shelvesEl=document.getElementById("shelves");
+const poolEl=document.getElementById("pool");
+const trayEl=document.getElementById("tray");
+const remainEl=document.getElementById("remain");
+const outEl=document.getElementById("out");
+const outBody=document.getElementById("outbody");
+const hintsEl=document.getElementById("hints");
+
+let lists={pool:[],S:[],A:[],B:[],C:[],D:[]};
+let picked=null, lastMoved=null, dragLock=false;
+
+/* ---- tier rows are built once ---- */
+TIERS.forEach(function(t){
+  const row=document.createElement("div");
+  row.className="tier"; row.dataset.t=t;
+  row.innerHTML='<div class="badge">'+t+'</div><div class="shelf" id="shelf-'+t+'"></div>';
+  row.addEventListener("click",function(){
+    if(dragLock) return;
+    if(picked!==null){ moveTo(picked,t); picked=null; }
+  });
+  shelvesEl.appendChild(row);
+});
+trayEl.addEventListener("click",function(){
+  if(dragLock) return;
+  if(picked!==null){ moveTo(picked,"pool"); picked=null; }
+});
+
+function zones(){
+  const z=TIERS.map(function(t){
+    return {key:t, el:shelvesEl.querySelector('.tier[data-t="'+t+'"]')};
+  });
+  z.push({key:"pool", el:trayEl});
+  return z;
+}
+
+function makeCard(id){
+  const ch=CHAPTERS[id], g=GROUPS[ch.group];
+  const el=document.createElement("div");
+  el.className="card"+(picked===id?" picked":"")+(lastMoved===id?" in":"");
+  el.style.setProperty("--tint",g.tint);
+  el.style.setProperty("--edge",g.edge);
+  el.title=ch.name;
+  el.innerHTML='<span>'+ch.short+'</span>';
+  el.addEventListener("pointerdown",function(e){ startDrag(e,el,id); });
+  return el;
+}
+
+function render(){
+  poolEl.innerHTML="";
+  lists.pool.forEach(function(id){ poolEl.appendChild(makeCard(id)); });
+  TIERS.forEach(function(t){
+    const sh=document.getElementById("shelf-"+t);
+    sh.innerHTML="";
+    lists[t].forEach(function(id){ sh.appendChild(makeCard(id)); });
+    const n=lists[t].length;
+    sh.classList.toggle("dense", n>9&&n<=15);
+    sh.classList.toggle("tight", n>15);
+  });
+  requestAnimationFrame(fitLabels);
+  const left=lists.pool.length;
+  remainEl.textContent = left ? left+" of "+CHAPTERS.length+" still to place" : "all placed";
+  lastMoved=null;
+}
+
+function fitLabels(){
+  const cards=document.querySelectorAll(".card:not(.ghost)");
+  for(let i=0;i<cards.length;i++){
+    const c=cards[i], sp=c.querySelector("span");
+    if(!sp) continue;
+    const cs=getComputedStyle(c);
+    const w=c.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const h=c.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+    if(w<4||h<4) continue;
+    let lo=5, hi=Math.max(6,Math.round(c.clientWidth*0.21)), best=lo;
+    while(lo<=hi){
+      const mid=(lo+hi)>>1;
+      sp.style.fontSize=mid+"px";
+      if(sp.scrollWidth<=w+0.5 && sp.scrollHeight<=h+0.5){ best=mid; lo=mid+1; }
+      else hi=mid-1;
+    }
+    sp.style.fontSize=best+"px";
+  }
+}
+addEventListener("resize",function(){ requestAnimationFrame(fitLabels); });
+
+function moveTo(id,key){
+  Object.keys(lists).forEach(function(k){
+    lists[k]=lists[k].filter(function(x){ return x!==id; });
+  });
+  lists[key].push(id);
+  lastMoved=id;
+  render();
+}
+
+/* ---- drag, with a click fallback ---- */
+function startDrag(e,card,id){
+  if(e.button!==undefined && e.button!==0) return;
+  e.preventDefault();
+  const x0=e.clientX, y0=e.clientY;
+  let dragging=false, ghost=null;
+
+  function onMove(ev){
+    if(!dragging && Math.abs(ev.clientX-x0)+Math.abs(ev.clientY-y0)>7){
+      dragging=true;
+      ghost=card.cloneNode(true);
+      ghost.classList.add("ghost");
+      ghost.classList.remove("picked","in");
+      stageEl.appendChild(ghost);
+      card.classList.add("lifted");
+    }
+    if(!dragging) return;
+    const r=stageEl.getBoundingClientRect(), k=r.width/1080;
+    ghost.style.left=((ev.clientX-r.left)/k)+"px";
+    ghost.style.top=((ev.clientY-r.top)/k)+"px";
+    const hit=zoneAt(ev.clientX,ev.clientY);
+    zones().forEach(function(z){ z.el.classList.toggle("over", hit===z.key); });
+  }
+
+  function onUp(ev){
+    document.removeEventListener("pointermove",onMove);
+    document.removeEventListener("pointerup",onUp);
+    zones().forEach(function(z){ z.el.classList.remove("over"); });
+    if(dragging){
+      if(ghost) ghost.remove();
+      card.classList.remove("lifted");
+      const hit=zoneAt(ev.clientX,ev.clientY);
+      dragLock=true; setTimeout(function(){ dragLock=false; },60);
+      if(hit) moveTo(id,hit);
+    }else{
+      picked = (picked===id) ? null : id;
+      render();
+    }
+  }
+
+  document.addEventListener("pointermove",onMove);
+  document.addEventListener("pointerup",onUp);
+}
+
+function zoneAt(cx,cy){
+  const hit=zones().filter(function(z){
+    const r=z.el.getBoundingClientRect();
+    return cx>=r.left && cx<=r.right && cy>=r.top && cy<=r.bottom;
+  });
+  return hit.length ? hit[0].key : null;
+}
+
+/* ---- result list ---- */
+function resultText(){
+  return TIERS.map(function(t){
+    const names=lists[t].map(function(id){ return CHAPTERS[id].name; });
+    return t+" TIER\n"+(names.length?names.map(function(n){return "  • "+n;}).join("\n"):"  (empty)");
+  }).join("\n\n") + (lists.pool.length ? "\n\nNOT PLACED\n"+
+    lists.pool.map(function(id){return "  • "+CHAPTERS[id].name;}).join("\n") : "");
+}
+document.getElementById("close").onclick=function(){ outEl.classList.remove("on"); };
+document.getElementById("copy").onclick=function(e){
+  const btn=e.target;
+  navigator.clipboard.writeText(resultText()).then(
+    function(){ btn.textContent="Copied"; },
+    function(){ btn.textContent="Select the text above"; }
+  );
+  setTimeout(function(){ btn.textContent="Copy list"; },1600);
+};
+
+addEventListener("keydown",function(e){
+  if(e.target.tagName==="BUTTON") return;
+  const k=e.key.toLowerCase();
+  if(e.key==="Escape"){ outEl.classList.remove("on"); picked=null; render(); return; }
+  if(["s","a","b","c","d"].indexOf(k)>-1){
+    if(picked!==null){ e.preventDefault(); moveTo(picked,k.toUpperCase()); picked=null; }
+  }
+  else if(k==="x"){
+    if(outEl.classList.contains("on")) outEl.classList.remove("on");
+    else { outBody.textContent=resultText(); outEl.classList.add("on"); }
+  }
+  else if(k==="h") hintsEl.classList.toggle("hide");
+  else if(k==="r") reset();
+});
+
+function reset(){
+  lists={pool:CHAPTERS.map(function(c){return c.id;}),S:[],A:[],B:[],C:[],D:[]};
+  picked=null; lastMoved=null;
+  outEl.classList.remove("on");
+  render();
+}
+function fit(){
+  if(stageEl.classList.contains("reel")){
+    const k=Math.min(innerWidth/1080,innerHeight/1920);
+    stageEl.style.transform="translate(-50%,-50%) scale("+k+")";
+  } else {
+    stageEl.style.transform="none";
+  }
+}
+document.getElementById("reelbtn").onclick=function(e){
+  stageEl.classList.toggle("reel");
+  e.target.textContent = stageEl.classList.contains("reel") ? "Fill window" : "Reel size 9:16";
+  fit();
+};
+addEventListener("resize",fit);
+fit(); reset();
+</script>
