@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>JeeForReal — Maths Chapter Tier List</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,9 +15,16 @@
   --s:#ff2e63; --a:#ff8a3d; --b:#ffd93d; --c:#4ade80; --d:#60a5fa;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#05030b;overflow:hidden;
+html{height:100%;-webkit-text-size-adjust:100%}
+body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;
+  background:#05030b;color:#fdf7ec;
+  -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;
+  touch-action:manipulation;
   font-family:"Fredoka",system-ui,-apple-system,"Segoe UI",sans-serif}
-#fit{position:fixed;inset:0;display:grid;place-items:center}
+
+#fit{position:fixed;inset:0;display:grid;place-items:center;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left)}
 
 /* fills the window by default; everything inside is sized off the board itself,
    so it stays proportional whether the board is the window or a 1080x1920 canvas */
@@ -24,77 +34,94 @@ html,body{height:100%;background:#05030b;overflow:hidden;
     radial-gradient(120% 45% at 50% -8%,#2d1657 0%,transparent 60%),
     radial-gradient(110% 35% at 50% 110%,#0c2b40 0%,transparent 58%),
     linear-gradient(#130d24,#0a0714);
-  color:var(--paper);display:flex;flex-direction:column;padding:2cqh 3cqw 1.4cqh}
-#stage.reel{position:absolute;left:50%;top:50%;width:1080px;height:1920px;flex:none}
+  color:var(--paper);display:flex;flex-direction:column;
+  padding:max(2cqh,10px) max(3cqw,12px) max(1.4cqh,8px)}
+#stage.reel{position:absolute;left:50%;top:50%;width:1080px;height:1920px;flex:none;
+  padding:2cqh 3cqw 1.4cqh}
 
 header{flex:none;text-align:center;margin-bottom:1cqh}
-.brand{font-size:3.3cqh;font-weight:700;letter-spacing:.1cqw;line-height:1}
+.brand{font-size:clamp(22px,3.3cqh,60px);font-weight:700;letter-spacing:.02em;line-height:1}
 .brand i{font-style:normal;color:var(--cyan);text-shadow:0 0 1.4cqh rgba(34,211,238,.5)}
-.sub{margin-top:.4cqh;font-size:1.25cqh;font-weight:500;color:var(--muted)}
+.sub{margin-top:.4cqh;font-size:clamp(11px,1.25cqh,22px);font-weight:500;color:var(--muted)}
+#stage.reel .brand{font-size:3.3cqh}
+#stage.reel .sub{font-size:1.25cqh}
 
 #shelves{flex:1;min-height:0;display:flex;flex-direction:column;gap:.55cqh}
-.tier{display:flex;flex:1;min-height:5cqh;border-radius:1cqh;overflow:hidden;
+.tier{display:flex;flex:1;min-height:0;border-radius:1cqh;overflow:hidden;
   background:rgba(255,255,255,.035);outline:.12cqh solid rgba(255,255,255,.07);
   outline-offset:-.12cqh;transition:outline-color .14s,background .14s}
 .tier.over{outline-color:var(--cyan);background:rgba(34,211,238,.1)}
-.badge{width:10.4cqw;flex:none;display:grid;place-items:center;font-size:3.4cqh;
+.badge{width:clamp(46px,10.4cqw,120px);flex:none;display:grid;place-items:center;
+  font-size:clamp(20px,3.4cqh,58px);
   font-weight:700;color:#150b24;text-shadow:0 .1cqh 0 rgba(255,255,255,.28)}
+#stage.reel .badge{width:10.4cqw;font-size:3.4cqh}
 .tier[data-t="S"] .badge{background:linear-gradient(155deg,#ff6b93,var(--s))}
 .tier[data-t="A"] .badge{background:linear-gradient(155deg,#ffb877,var(--a))}
 .tier[data-t="B"] .badge{background:linear-gradient(155deg,#ffeb9b,var(--b))}
 .tier[data-t="C"] .badge{background:linear-gradient(155deg,#9af2be,var(--c))}
 .tier[data-t="D"] .badge{background:linear-gradient(155deg,#a5cbff,var(--d))}
 .shelf{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-content:flex-start;
-  gap:.5cqh .8cqw;padding:.7cqh 1.3cqw;background:rgba(8,4,18,.42)}
+  gap:6px 8px;padding:6px 10px;background:rgba(8,4,18,.42);
+  overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 
-.card{flex:0 0 auto;width:12.2cqw;aspect-ratio:1/1;display:flex;align-items:center;
-  justify-content:center;text-align:center;padding:.55cqh .45cqw;overflow:hidden;
-  border-radius:.65cqh;border-top:.36cqh solid var(--edge);background:var(--tint);
+.card{flex:0 0 auto;width:var(--cw,74px);aspect-ratio:1/1;display:flex;align-items:center;
+  justify-content:center;text-align:center;padding:4px 3px;overflow:hidden;
+  border-radius:8px;border-top:3px solid var(--edge);background:var(--tint);
   cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
-  box-shadow:0 .3cqh .7cqh rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.6)}
-.card span{display:block;width:100%;font-size:1cqh;font-weight:700;
+  -webkit-touch-callout:none;
+  box-shadow:0 3px 7px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.6)}
+.card span{display:block;width:100%;font-size:11px;font-weight:700;
   line-height:1.12;color:var(--ink)}
-.card.picked{outline:.2cqh solid var(--cyan);outline-offset:.14cqh;
-  box-shadow:0 0 1.4cqh rgba(34,211,238,.6)}
+.card.picked{outline:3px solid var(--cyan);outline-offset:2px;
+  box-shadow:0 0 16px rgba(34,211,238,.6)}
 .card.lifted{opacity:.25}
 .card.in{animation:land .3s cubic-bezier(.2,1.4,.4,1) both}
-@keyframes land{from{transform:translateY(-1.2cqh) rotate(-5deg) scale(.9);opacity:0}to{transform:none;opacity:1}}
+@keyframes land{from{transform:translateY(-14px) rotate(-5deg) scale(.9);opacity:0}to{transform:none;opacity:1}}
 .card.ghost{position:absolute;z-index:30;pointer-events:none;opacity:.96;
   transform:translate(-50%,-50%) rotate(-3deg) scale(1.08);
-  box-shadow:0 1cqh 1.8cqh rgba(0,0,0,.6)}
-.shelf.dense .card{width:7.6cqw}
-.shelf.tight .card{width:4.8cqw}
+  box-shadow:0 12px 22px rgba(0,0,0,.6)}
 
-#tray{flex:none;height:33cqh;margin-top:.62cqh;display:flex;flex-direction:column;
+#tray{flex:none;height:32cqh;margin-top:.62cqh;display:flex;flex-direction:column;
   border-radius:1cqh;overflow:hidden;background:rgba(255,255,255,.04);
   outline:.12cqh solid rgba(255,255,255,.09);outline-offset:-.12cqh;
   transition:outline-color .14s}
 #tray.over{outline-color:var(--cyan)}
+/* short screens (720p / 768p laptops, projectors): give the tiers the room */
+@container (max-height:800px){ #tray{height:27cqh} }
 #traybar{flex:none;display:flex;justify-content:space-between;align-items:center;
-  padding:.62cqh 1.85cqw;background:rgba(255,255,255,.05);font-size:1.1cqh;font-weight:600}
+  padding:6px max(1.85cqw,10px);background:rgba(255,255,255,.05);
+  font-size:clamp(12px,1.25cqh,20px);font-weight:600}
 #traybar span{color:var(--muted);font-weight:500}
-#pool{flex:1;min-height:0;overflow:auto;display:flex;flex-wrap:wrap;
-  align-content:flex-start;gap:.5cqh .8cqw;padding:.8cqh 1.6cqw}
+#pool{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;display:flex;flex-wrap:wrap;
+  align-content:flex-start;gap:6px 8px;padding:8px 12px}
 #pool:empty::after{content:"Every chapter is on the board.";color:var(--muted);
-  font-size:1.15cqh;font-weight:500;margin:auto}
+  font-size:clamp(12px,1.15cqh,20px);font-weight:500;margin:auto}
 
-#hints{flex:none;margin-top:.62cqh;display:flex;justify-content:center;align-items:center;
-  gap:1cqw;font-size:.9cqh;font-weight:500;color:#6f5d93}
-#hints kbd{display:inline-block;margin:0 .1cqw;padding:.1cqh .45cqw;border-radius:.3cqh;
+#hints{flex:none;margin-top:.62cqh;display:flex;flex-wrap:wrap;justify-content:center;
+  align-items:center;gap:8px 14px;font-size:clamp(11px,1cqh,16px);font-weight:500;color:#8d79b4}
+#hints kbd{display:inline-block;margin:0 1px;padding:1px 5px;border-radius:4px;
   background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);
-  color:#c4b4e2;font-family:inherit;font-size:.82cqh;font-weight:600}
+  color:#c4b4e2;font-family:inherit;font-size:.92em;font-weight:600}
 #hints.hide{visibility:hidden}
-#reelbtn{font-size:.85cqh;padding:.35cqh 1cqw;border-radius:.5cqh;
-  background:rgba(34,211,238,.16);color:var(--cyan);border:1px solid rgba(34,211,238,.4)}
+#hints button{font-size:clamp(12px,1cqh,16px);min-height:34px;padding:6px 14px;
+  border-radius:8px;background:rgba(34,211,238,.16);color:var(--cyan);
+  border:1px solid rgba(34,211,238,.4)}
+.tt{display:none}
+body.touch .kb{display:none}
+body.touch .tt{display:inline}
+body.touch #hints{gap:10px}
+body.touch #hints button{min-height:44px;padding:9px 18px;font-size:clamp(13px,1.15cqh,18px)}
 
 #out{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;gap:1.1cqh;
-  padding:3cqh 5cqw;background:rgba(7,4,15,.985);backdrop-filter:blur(8px)}
+  padding:max(3cqh,18px) max(5cqw,20px);background:rgba(7,4,15,.985);backdrop-filter:blur(8px)}
 #out.on{display:flex}
-#out h2{font-size:2.2cqh;font-weight:700}
-#outbody{flex:1;overflow:auto;white-space:pre-wrap;font-size:1.15cqh;line-height:1.6;color:#d6c9f0}
-#out .row{display:flex;gap:1.2cqw}
-#out button{font-size:1.05cqh;padding:.7cqh 1.6cqw;border-radius:.6cqh}
-button{font-family:inherit;font-weight:600;border:0;cursor:pointer;
+#out h2{font-size:clamp(18px,2.2cqh,36px);font-weight:700}
+#outbody{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;white-space:pre-wrap;
+  font-size:clamp(13px,1.2cqh,20px);line-height:1.6;color:#d6c9f0;user-select:text;-webkit-user-select:text}
+#out .row{display:flex;flex-wrap:wrap;gap:12px}
+#out button{font-size:clamp(13px,1.05cqh,18px);min-height:44px;padding:10px 20px;border-radius:10px}
+button{font-family:inherit;font-weight:600;border:0;cursor:pointer;touch-action:manipulation;
   background:var(--cyan);color:#06222a}
 button.ghost{background:rgba(255,255,255,.12);color:var(--paper)}
 button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
@@ -119,10 +146,13 @@ button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
   </div>
 
   <div id="hints">
-    <span>Drag a chapter onto a tier, or tap it then press
+    <span class="kb">Drag a chapter onto a tier, or tap it then press
     <kbd>S</kbd><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd></span>
-    <span><kbd>X</kbd> list · <kbd>H</kbd> hide · <kbd>R</kbd> reset</span>
-    <button id="reelbtn">Reel size 9:16</button>
+    <span class="kb"><kbd>X</kbd> list · <kbd>H</kbd> hide · <kbd>R</kbd> reset</span>
+    <span class="tt">Tap a chapter, then tap a tier — or drag it across.</span>
+    <button id="listbtn">List</button>
+    <button id="resetbtn">Reset</button>
+    <button id="reelbtn">Reel 9:16</button>
   </div>
 
   <div id="out">
@@ -186,6 +216,9 @@ const outEl=document.getElementById("out");
 const outBody=document.getElementById("outbody");
 const hintsEl=document.getElementById("hints");
 
+const TOUCH = matchMedia("(pointer:coarse)").matches || navigator.maxTouchPoints>1;
+if(TOUCH) document.body.classList.add("touch");
+
 let lists={pool:[],S:[],A:[],B:[],C:[],D:[]};
 let picked=null, lastMoved=null, dragLock=false;
 
@@ -200,7 +233,7 @@ TIERS.forEach(function(t){
   });
   shelvesEl.appendChild(row);
 });
-trayEl.addEventListener("click",function(){
+trayEl.addEventListener("click",function(e){
   if(dragLock) return;
   if(picked!==null){ moveTo(picked,"pool"); picked=null; }
 });
@@ -232,18 +265,56 @@ function render(){
     const sh=document.getElementById("shelf-"+t);
     sh.innerHTML="";
     lists[t].forEach(function(id){ sh.appendChild(makeCard(id)); });
-    const n=lists[t].length;
-    sh.classList.toggle("dense", n>9&&n<=15);
-    sh.classList.toggle("tight", n>15);
   });
-  requestAnimationFrame(fitLabels);
   const left=lists.pool.length;
   remainEl.textContent = left ? left+" of "+CHAPTERS.length+" still to place" : "all placed";
   lastMoved=null;
+  requestAnimationFrame(relayout);
+}
+
+/* ---- every shelf picks the biggest card size that still fits its own box ---- */
+function bestSize(count,W,H,gx,gy,minS,maxS){
+  if(count<=0) return maxS;
+  W=W-2; /* sub-pixel slack, so a row never wraps by half a pixel */
+  let lo=minS, hi=maxS, best=minS;
+  while(lo<=hi){
+    const s=(lo+hi)>>1;
+    const cols=Math.max(1,Math.floor((W+gx)/(s+gx)));
+    const rows=Math.ceil(count/cols);
+    const need=rows*(s+gy)-gy;
+    if(need<=H){ best=s; lo=s+1; } else hi=s-1;
+  }
+  return best;
+}
+
+function sizeBox(el,count,minS,maxS){
+  const cs=getComputedStyle(el);
+  const gx=parseFloat(cs.columnGap)||0, gy=parseFloat(cs.rowGap)||0;
+  const W=el.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const H=el.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
+  if(W<10||H<10) return;
+  let s=bestSize(count,W,H,gx,gy,minS,maxS);
+  el.style.setProperty("--cw", s+"px");
+  /* the browser gets the final say: shrink until nothing spills out of the box */
+  let guard=14;
+  while(guard-- > 0 && s>minS && el.scrollHeight > el.clientHeight+1){
+    s=Math.max(minS, Math.floor(s*0.94));
+    el.style.setProperty("--cw", s+"px");
+  }
+}
+
+function relayout(){
+  TIERS.forEach(function(t){
+    const sh=document.getElementById("shelf-"+t);
+    sizeBox(sh, lists[t].length, 38, 170);
+  });
+  sizeBox(poolEl, lists.pool.length, 44, 150);
+  requestAnimationFrame(fitLabels);
 }
 
 function fitLabels(){
   const cards=document.querySelectorAll(".card:not(.ghost)");
+  const groups=new Map();   /* one type size per shelf, so a row reads evenly */
   for(let i=0;i<cards.length;i++){
     const c=cards[i], sp=c.querySelector("span");
     if(!sp) continue;
@@ -251,7 +322,7 @@ function fitLabels(){
     const w=c.clientWidth  - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     const h=c.clientHeight - parseFloat(cs.paddingTop)  - parseFloat(cs.paddingBottom);
     if(w<4||h<4) continue;
-    let lo=5, hi=Math.max(6,Math.round(c.clientWidth*0.21)), best=lo;
+    let lo=6, hi=Math.max(7,Math.round(c.clientWidth*0.22)), best=lo;
     while(lo<=hi){
       const mid=(lo+hi)>>1;
       sp.style.fontSize=mid+"px";
@@ -259,9 +330,20 @@ function fitLabels(){
       else hi=mid-1;
     }
     sp.style.fontSize=best+"px";
+    const box=c.parentNode;
+    const cur=groups.get(box);
+    if(cur===undefined || best<cur) groups.set(box,best);
   }
+  groups.forEach(function(size,box){
+    const sp=box.querySelectorAll(".card:not(.ghost) span");
+    for(let i=0;i<sp.length;i++) sp[i].style.fontSize=size+"px";
+  });
 }
-addEventListener("resize",function(){ requestAnimationFrame(fitLabels); });
+
+function onViewportChange(){ fit(); requestAnimationFrame(relayout); }
+addEventListener("resize",onViewportChange);
+addEventListener("orientationchange",function(){ setTimeout(onViewportChange,250); });
+if(window.visualViewport) visualViewport.addEventListener("resize",onViewportChange);
 
 function moveTo(id,key){
   Object.keys(lists).forEach(function(k){
@@ -272,12 +354,18 @@ function moveTo(id,key){
   render();
 }
 
-/* ---- drag, with a click fallback ---- */
+/* ---- drag, with a tap fallback ---- */
 function startDrag(e,card,id){
   if(e.button!==undefined && e.button!==0) return;
   e.preventDefault();
   const x0=e.clientX, y0=e.clientY;
   let dragging=false, ghost=null;
+
+  function stageScale(){
+    const r=stageEl.getBoundingClientRect();
+    const w=stageEl.offsetWidth||r.width;
+    return {r:r, k:(w? r.width/w : 1) || 1};
+  }
 
   function onMove(ev){
     if(!dragging && Math.abs(ev.clientX-x0)+Math.abs(ev.clientY-y0)>7){
@@ -285,26 +373,42 @@ function startDrag(e,card,id){
       ghost=card.cloneNode(true);
       ghost.classList.add("ghost");
       ghost.classList.remove("picked","in");
+      ghost.style.width=card.offsetWidth+"px";
       stageEl.appendChild(ghost);
       card.classList.add("lifted");
     }
     if(!dragging) return;
-    const r=stageEl.getBoundingClientRect(), k=r.width/1080;
-    ghost.style.left=((ev.clientX-r.left)/k)+"px";
-    ghost.style.top=((ev.clientY-r.top)/k)+"px";
+    const m=stageScale();
+    ghost.style.left=((ev.clientX-m.r.left)/m.k)+"px";
+    ghost.style.top=((ev.clientY-m.r.top)/m.k)+"px";
     const hit=zoneAt(ev.clientX,ev.clientY);
     zones().forEach(function(z){ z.el.classList.toggle("over", hit===z.key); });
   }
 
-  function onUp(ev){
+  function cleanup(){
     document.removeEventListener("pointermove",onMove);
     document.removeEventListener("pointerup",onUp);
+    document.removeEventListener("pointercancel",onCancel);
     zones().forEach(function(z){ z.el.classList.remove("over"); });
-    if(dragging){
-      if(ghost) ghost.remove();
-      card.classList.remove("lifted");
-      const hit=zoneAt(ev.clientX,ev.clientY);
-      dragLock=true; setTimeout(function(){ dragLock=false; },60);
+    if(ghost) ghost.remove();
+    card.classList.remove("lifted");
+  }
+
+  function onCancel(){
+    const wasDragging=dragging;
+    cleanup();
+    if(wasDragging){ dragLock=true; setTimeout(function(){ dragLock=false; },60); }
+  }
+
+  function onUp(ev){
+    const wasDragging=dragging;
+    const cx=ev.clientX, cy=ev.clientY;
+    cleanup();
+    /* swallow the click that trails this gesture, so the zone under the
+       card does not immediately act on the selection we just made */
+    dragLock=true; setTimeout(function(){ dragLock=false; },140);
+    if(wasDragging){
+      const hit=zoneAt(cx,cy);
       if(hit) moveTo(id,hit);
     }else{
       picked = (picked===id) ? null : id;
@@ -314,6 +418,7 @@ function startDrag(e,card,id){
 
   document.addEventListener("pointermove",onMove);
   document.addEventListener("pointerup",onUp);
+  document.addEventListener("pointercancel",onCancel);
 }
 
 function zoneAt(cx,cy){
@@ -332,7 +437,13 @@ function resultText(){
   }).join("\n\n") + (lists.pool.length ? "\n\nNOT PLACED\n"+
     lists.pool.map(function(id){return "  • "+CHAPTERS[id].name;}).join("\n") : "");
 }
+function showList(){ outBody.textContent=resultText(); outEl.classList.add("on"); }
+function toggleList(){
+  if(outEl.classList.contains("on")) outEl.classList.remove("on");
+  else showList();
+}
 document.getElementById("close").onclick=function(){ outEl.classList.remove("on"); };
+document.getElementById("listbtn").onclick=toggleList;
 document.getElementById("copy").onclick=function(e){
   const btn=e.target;
   navigator.clipboard.writeText(resultText()).then(
@@ -342,6 +453,15 @@ document.getElementById("copy").onclick=function(e){
   setTimeout(function(){ btn.textContent="Copy list"; },1600);
 };
 
+/* reset asks once, so a stray tap on iPad can't wipe the board */
+let armed=null;
+const resetBtn=document.getElementById("resetbtn");
+resetBtn.onclick=function(){
+  if(armed){ clearTimeout(armed); armed=null; resetBtn.textContent="Reset"; reset(); return; }
+  resetBtn.textContent="Sure?";
+  armed=setTimeout(function(){ armed=null; resetBtn.textContent="Reset"; },2500);
+};
+
 addEventListener("keydown",function(e){
   if(e.target.tagName==="BUTTON") return;
   const k=e.key.toLowerCase();
@@ -349,10 +469,7 @@ addEventListener("keydown",function(e){
   if(["s","a","b","c","d"].indexOf(k)>-1){
     if(picked!==null){ e.preventDefault(); moveTo(picked,k.toUpperCase()); picked=null; }
   }
-  else if(k==="x"){
-    if(outEl.classList.contains("on")) outEl.classList.remove("on");
-    else { outBody.textContent=resultText(); outEl.classList.add("on"); }
-  }
+  else if(k==="x") toggleList();
   else if(k==="h") hintsEl.classList.toggle("hide");
   else if(k==="r") reset();
 });
@@ -373,9 +490,14 @@ function fit(){
 }
 document.getElementById("reelbtn").onclick=function(e){
   stageEl.classList.toggle("reel");
-  e.target.textContent = stageEl.classList.contains("reel") ? "Fill window" : "Reel size 9:16";
-  fit();
+  e.target.textContent = stageEl.classList.contains("reel") ? "Fill screen" : "Reel 9:16";
+  fit(); requestAnimationFrame(relayout);
 };
-addEventListener("resize",fit);
+
+/* stop iPad's two-finger / double-tap page zoom from fighting the board */
+document.addEventListener("gesturestart",function(e){ e.preventDefault(); });
+document.addEventListener("dblclick",function(e){ e.preventDefault(); });
+
 fit(); reset();
+document.fonts && document.fonts.ready.then(function(){ requestAnimationFrame(relayout); });
 </script>
