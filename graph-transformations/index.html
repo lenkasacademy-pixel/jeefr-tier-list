@@ -161,9 +161,9 @@
 <script>
 /* ============ base curve library ============ */
 var B = {
-  sin : {html:'sin x', f:function(x){return Math.sin(x);}, xr:[-2*Math.PI,2*Math.PI], clip:4},
-  cos : {html:'cos x', f:function(x){return Math.cos(x);}, xr:[-2*Math.PI,2*Math.PI], clip:4},
-  tan : {html:'tan x', f:function(x){return Math.tan(x);}, xr:[-1.5*Math.PI,1.5*Math.PI], clip:6},
+  sin : {html:'sin x', f:function(x){return Math.sin(x);}, xr:[-2*Math.PI,2*Math.PI], clip:4, pi:true},
+  cos : {html:'cos x', f:function(x){return Math.cos(x);}, xr:[-2*Math.PI,2*Math.PI], clip:4, pi:true},
+  tan : {html:'tan x', f:function(x){return Math.tan(x);}, xr:[-1.5*Math.PI,1.5*Math.PI], clip:6, pi:true},
   sq  : {html:'x²',    f:function(x){return x*x;},         xr:[-2.3,2.3], clip:9},
   sqm4: {html:'x² − 4', f:function(x){return x*x-4;}, xr:[-3.2,3.2], clip:9},
   ln  : {html:'ln x',  f:function(x){return x>0.01?Math.log(x):NaN;}, xr:[-0.5,8], clip:6},
@@ -417,6 +417,54 @@ function grid(M){
   ctx.font='600 13px "Space Grotesk",sans-serif'; ctx.fillStyle='rgba(36,21,82,.65)';
   ctx.fillText('x',W-16,M.Y(0)-8);
   ctx.fillText('y',ax+8,16);
+
+  /* ---- coordinate labels on both axes ---- */
+  var axY=M.Y(0), yAxLeft = ax<50, lf = W>520?13:11, px, py, k, txt;
+  var xBelow = axY < H-24;
+  var xLabY = xBelow ? axY+15 : axY-8;
+  ctx.save();
+  ctx.font='500 '+lf+'px "Space Grotesk",sans-serif';
+  ctx.strokeStyle='rgba(36,21,82,.55)'; ctx.lineWidth=1.4;
+  ctx.fillStyle='rgba(36,21,82,.62)';
+
+  ctx.textAlign='center';
+  if(fn.pi){
+    var PI=Math.PI;
+    for(k=Math.ceil(x0/PI);k<=Math.floor(x1/PI);k++){
+      if(!k) continue;
+      px=M.X(k*PI);
+      if(px<18||px>W-26) continue;
+      ctx.beginPath();ctx.moveTo(px,axY-3);ctx.lineTo(px,axY+3);ctx.stroke();
+      txt=(k===1?'':(k===-1?'−':(k<0?'−'+(-k):''+k)))+'π';
+      ctx.fillText(txt,px,xLabY);
+    }
+  } else {
+    var xs=(x1-x0)>9?2:1;
+    for(gx=Math.ceil(x0/xs)*xs;gx<=x1;gx+=xs){
+      if(!gx) continue;
+      px=M.X(gx);
+      if(px<18||px>W-26||Math.abs(px-ax)<12) continue;
+      ctx.beginPath();ctx.moveTo(px,axY-3);ctx.lineTo(px,axY+3);ctx.stroke();
+      ctx.fillText((gx<0?'−'+(-gx):''+gx),px,xLabY);
+    }
+  }
+
+  var ys=(y1-y0)>9?2:1;
+  ctx.textAlign = yAxLeft?'left':'right';
+  for(gy=Math.ceil(y0/ys)*ys;gy<=y1;gy+=ys){
+    if(!gy) continue;
+    py=M.Y(gy);
+    if(py<20||py>H-14||Math.abs(py-axY)<12) continue;
+    ctx.beginPath();ctx.moveTo(ax-3,py);ctx.lineTo(ax+3,py);ctx.stroke();
+    ctx.fillText((gy<0?'−'+(-gy):''+gy), yAxLeft?ax+7:ax-7, py+4);
+  }
+
+  if(ax>12&&ax<W-12&&axY>12&&axY<H-12){
+    ctx.textAlign = yAxLeft?'left':'right';
+    ctx.fillText('O', yAxLeft?ax+6:ax-6, axY+(xBelow?15:-8));
+  }
+  ctx.textAlign='left';
+  ctx.restore();
 }
 function stroke(pts,M,tf,color,width,opts){
   opts=opts||{};
