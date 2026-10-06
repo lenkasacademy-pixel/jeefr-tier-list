@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>JeeForReal - Maths Chapter Tier List</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;height:100%;width:100%;overflow:hidden;background:#f2f3f8;
+  position:fixed;left:0;top:0;
+  -webkit-text-size-adjust:100%;
+  font-family:Fredoka,"Helvetica Neue",Helvetica,Arial,sans-serif}
+#head{position:absolute;text-align:center}
+.brand{font-weight:700;color:#1a1f3c;letter-spacing:1px;line-height:1}
+.brand i{font-style:normal;color:#0e9bb8}
+.sub{color:#7c84a8;font-weight:500;margin-top:4px}
+
+.tier{position:absolute;background:#ffffff;border:1px solid #e3e6f0;
+  border-radius:14px;overflow:hidden;
+  -webkit-box-shadow:0 1px 3px rgba(30,35,70,.07);box-shadow:0 1px 3px rgba(30,35,70,.07)}
+.tier.over{border-color:#0e9bb8;background:#eefbfe}
+.badge{position:absolute;left:0;top:0;bottom:0;text-align:center;color:#fff;
+  font-weight:700;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+.badge span{display:block}
+.shelf{position:absolute;top:0;bottom:0;right:0;overflow:hidden}
+
+#tray{position:absolute;background:#ffffff;border:1px solid #e3e6f0;border-radius:14px;
+  overflow:hidden;-webkit-box-shadow:0 1px 3px rgba(30,35,70,.07);box-shadow:0 1px 3px rgba(30,35,70,.07)}
+#tray.over{border-color:#0e9bb8}
+#traybar{position:absolute;left:0;right:0;top:0;background:#f7f8fc;
+  border-bottom:1px solid #eceef6;color:#4a5273}
+#traybar b{position:absolute;left:14px;font-weight:600}
+#traybar i{position:absolute;right:14px;font-style:normal;color:#8d94b4;font-weight:500}
+#pool{position:absolute;left:0;right:0;bottom:0;overflow:hidden}
+#poolmsg{position:absolute;left:0;right:0;top:40%;text-align:center;color:#9aa1bd;
+  font-weight:500;display:none}
+
+.card{position:absolute;border-radius:9px;border:1px solid #dfe3ef;border-top-width:5px;
+  background:#fff;cursor:pointer;overflow:hidden;
+  -webkit-box-shadow:0 1px 2px rgba(30,35,70,.10);box-shadow:0 1px 2px rgba(30,35,70,.10);
+  -webkit-user-select:none;user-select:none}
+.card .mid{display:table;table-layout:fixed;width:100%;height:100%}
+.card .mid span{display:table-cell;vertical-align:middle;text-align:center;
+  padding:0 6px}
+.card .mid em{display:block;font-style:normal;font-weight:600;color:#1f2444;
+  line-height:1.15}
+.card.picked{border-color:#0e9bb8;
+  -webkit-box-shadow:0 0 0 3px rgba(14,155,184,.35);box-shadow:0 0 0 3px rgba(14,155,184,.35)}
+.card.lifted{opacity:.25}
+.card.ghost{z-index:9999;pointer-events:none;opacity:.95;
+  -webkit-transform:rotate(-3deg);transform:rotate(-3deg);
+  -webkit-box-shadow:0 10px 22px rgba(30,35,70,.3);box-shadow:0 10px 22px rgba(30,35,70,.3)}
+
+#foot{position:absolute;text-align:center;color:#8d94b4;font-weight:500}
+#foot b{color:#4a5273;font-weight:600}
+#foot .btn{display:inline-block;border:1px solid #cfd4e6;background:#fff;color:#4a5273;
+  border-radius:8px;font-weight:600;cursor:pointer;margin-left:6px;font-family:inherit}
+#foot.hide{visibility:hidden}
+
+#out{position:absolute;left:0;top:0;right:0;bottom:0;background:#f2f3f8;display:none;z-index:999}
+#outin{position:absolute;left:24px;right:24px;top:24px;bottom:80px;overflow:auto;
+  -webkit-overflow-scrolling:touch;background:#fff;border:1px solid #e3e6f0;border-radius:14px;
+  padding:20px 24px;color:#2b3154;white-space:pre-wrap;line-height:1.55}
+#outbtns{position:absolute;left:24px;bottom:22px}
+#outbtns button{font-family:inherit;font-weight:600;border-radius:9px;cursor:pointer;
+  border:1px solid #cfd4e6;background:#fff;color:#4a5273;margin-right:8px}
+#outbtns button.go{background:#0e9bb8;border-color:#0e9bb8;color:#fff}
+</style>
+</head>
+<body>
+
+<div id="head">
+  <div class="brand">JEE <i>FOR</i> REAL</div>
+  <div class="sub">Maths chapter tier list</div>
+</div>
+
+<div id="board"></div>
+
+<div id="tray">
+  <div id="traybar"><b>Chapters</b><i id="remain"></i></div>
+  <div id="pool"><div id="poolmsg">Every chapter is on the board.</div></div>
+</div>
+
+<div id="foot">
+  <span>Tap a chapter, then tap a tier - or drag it across</span>
+  <button class="btn" id="btnlist">List</button>
+  <button class="btn" id="btnreset">Reset</button>
+  <button class="btn" id="btnhide">Hide bar</button>
+</div>
+
+<div id="out">
+  <div id="outin"></div>
+  <div id="outbtns">
+    <button class="go" id="btncopy">Copy list</button>
+    <button id="btnback">Back to the board</button>
+  </div>
+</div>
+
+<script>
+/* ---------- data ---------- */
+var GROUPS = {
+  algebra:  { edge:"#7c3aed", tint:"#f2edff" },
+  trig:     { edge:"#db2777", tint:"#ffeaf4" },
+  coord:    { edge:"#0891b2", tint:"#e3f8fc" },
+  calculus: { edge:"#d97706", tint:"#fff4da" },
+  vectors:  { edge:"#059669", tint:"#ddfaef" },
+  chance:   { edge:"#e11d48", tint:"#ffe7eb" }
+};
+var RAW = [
+  ["Sets, Relations & Functions","Sets & Functions","algebra"],
+  ["Complex Numbers","Complex Numbers","algebra"],
+  ["Quadratic Equations","Quadratic Equations","algebra"],
+  ["Matrices & Determinants","Matrices","algebra"],
+  ["Permutations & Combinations","Perm & Comb","algebra"],
+  ["Binomial Theorem","Binomial Theorem","algebra"],
+  ["Sequences & Series","Sequences & Series","algebra"],
+  ["Trigonometric Identities","Trig Identities","trig"],
+  ["Trigonometric Equations","Trig Equations","trig"],
+  ["Inverse Trigonometry","Inverse Trig","trig"],
+  ["Solution of Triangles","Triangles","trig"],
+  ["Straight Lines","Straight Lines","coord"],
+  ["Circles","Circles","coord"],
+  ["Parabola","Parabola","coord"],
+  ["Ellipse","Ellipse","coord"],
+  ["Hyperbola","Hyperbola","coord"],
+  ["Limits","Limits","calculus"],
+  ["Continuity & Differentiability","Continuity & Diff","calculus"],
+  ["Application of Derivatives","Derivatives (AOD)","calculus"],
+  ["Indefinite Integration","Indefinite Integration","calculus"],
+  ["Definite Integration","Definite Integration","calculus"],
+  ["Area Under Curves","Area Under Curves","calculus"],
+  ["Differential Equations","Differential Equations","calculus"],
+  ["Vector Algebra","Vector Algebra","vectors"],
+  ["3D Geometry","3D Geometry","vectors"],
+  ["Probability","Probability","chance"],
+  ["Statistics","Statistics","chance"]
+];
+var CH = [];
+for (var i = 0; i < RAW.length; i++) {
+  CH.push({ id:i, name:RAW[i][0], short:RAW[i][1], group:RAW[i][2] });
+}
+var TIERS = ["S","A","B","C","D"];
+var TIERCOL = { S:"#ef4444", A:"#f97316", B:"#eab308", C:"#22c55e", D:"#3b82f6" };
+
+/* ---------- state ---------- */
+var lists = { pool:[], S:[], A:[], B:[], C:[], D:[] };
+var picked = null;
+var boardEl = document.getElementById("board");
+var trayEl  = document.getElementById("tray");
+var poolEl  = document.getElementById("pool");
+var headEl  = document.getElementById("head");
+var footEl  = document.getElementById("foot");
+var barEl   = document.getElementById("traybar");
+var remainEl= document.getElementById("remain");
+var outEl   = document.getElementById("out");
+var msgEl   = document.getElementById("poolmsg");
+var geo = {};
+
+function reset() {
+  lists = { pool:[], S:[], A:[], B:[], C:[], D:[] };
+  for (var i = 0; i < CH.length; i++) lists.pool.push(CH[i].id);
+  picked = null;
+  outEl.style.display = "none";
+  layout();
+}
+
+/* ---------- build the five tier rows once ---------- */
+var rows = {};
+for (var t = 0; t < TIERS.length; t++) {
+  var key = TIERS[t];
+  var row = document.createElement("div");
+  row.className = "tier";
+  row.setAttribute("data-t", key);
+  var bd = document.createElement("div");
+  bd.className = "badge";
+  bd.style.background = TIERCOL[key];
+  bd.innerHTML = "<span>" + key + "</span>";
+  var sh = document.createElement("div");
+  sh.className = "shelf";
+  row.appendChild(bd);
+  row.appendChild(sh);
+  boardEl.appendChild(row);
+  rows[key] = { row:row, badge:bd, shelf:sh };
+}
+
+/* ---------- geometry: everything sized in pixels from the screen ---------- */
+function layout() {
+  var W = window.innerWidth, H = window.innerHeight;
+  var pad = Math.round(Math.min(W, H) * 0.022);
+  if (pad < 8) pad = 8;
+  var gap = Math.max(5, Math.round(pad * 0.42));
+
+  var headH = Math.round(H * 0.085);
+  var footH = Math.round(H * 0.052);
+  var trayH = Math.round(H * 0.395);
+  var boardTop = pad + headH;
+  var boardH = H - boardTop - trayH - footH - pad * 3;
+  var rowH = Math.floor((boardH - gap * 4) / 5);
+
+  headEl.style.left = pad + "px";
+  headEl.style.right = pad + "px";
+  headEl.style.top = Math.round(pad * 0.5) + "px";
+  headEl.style.width = (W - pad * 2) + "px";
+  var brand = headEl.getElementsByClassName("brand")[0];
+  var sub = headEl.getElementsByClassName("sub")[0];
+  brand.style.fontSize = Math.round(headH * 0.56) + "px";
+  sub.style.fontSize = Math.round(headH * 0.25) + "px";
+
+  boardEl.style.position = "absolute";
+  boardEl.style.left = pad + "px";
+  boardEl.style.top = boardTop + "px";
+  boardEl.style.width = (W - pad * 2) + "px";
+  boardEl.style.height = boardH + "px";
+
+  var badgeW = Math.round(Math.min(W, H) * 0.115);
+  if (badgeW < 44) badgeW = 44;
+  for (var t = 0; t < TIERS.length; t++) {
+    var r = rows[TIERS[t]];
+    r.row.style.left = "0px";
+    r.row.style.width = (W - pad * 2 - 2) + "px";
+    r.row.style.top = (t * (rowH + gap)) + "px";
+    r.row.style.height = rowH + "px";
+    r.badge.style.width = badgeW + "px";
+    r.badge.style.fontSize = Math.round(rowH * 0.45) + "px";
+    r.badge.getElementsByTagName("span")[0].style.paddingTop =
+      Math.round(rowH * 0.5 - rowH * 0.28) + "px";
+    r.shelf.style.left = badgeW + "px";
+  }
+
+  trayEl.style.left = pad + "px";
+  trayEl.style.top = (boardTop + boardH + pad) + "px";
+  trayEl.style.width = (W - pad * 2 - 2) + "px";
+  trayEl.style.height = trayH + "px";
+  var barH = Math.round(trayH * 0.13);
+  if (barH < 28) barH = 28;
+  barEl.style.height = barH + "px";
+  barEl.style.lineHeight = barH + "px";
+  barEl.style.fontSize = Math.round(barH * 0.42) + "px";
+  poolEl.style.top = barH + "px";
+  msgEl.style.fontSize = Math.round(barH * 0.46) + "px";
+
+  footEl.style.left = pad + "px";
+  footEl.style.right = pad + "px";
+  footEl.style.width = (W - pad * 2) + "px";
+  footEl.style.top = (H - footH - Math.round(pad * 0.4)) + "px";
+  footEl.style.height = footH + "px";
+  footEl.style.lineHeight = footH + "px";
+  footEl.style.fontSize = Math.round(footH * 0.36) + "px";
+  var btns = footEl.getElementsByClassName("btn");
+  for (var b = 0; b < btns.length; b++) {
+    btns[b].style.fontSize = Math.round(footH * 0.34) + "px";
+    btns[b].style.padding = Math.round(footH * 0.14) + "px " + Math.round(footH * 0.3) + "px";
+  }
+
+  var outin = document.getElementById("outin");
+  outin.style.fontSize = Math.round(Math.min(W, H) * 0.028) + "px";
+  var obs = document.getElementById("outbtns").getElementsByTagName("button");
+  for (var o = 0; o < obs.length; o++) {
+    obs[o].style.fontSize = Math.round(Math.min(W, H) * 0.027) + "px";
+    obs[o].style.padding = "11px 20px";
+  }
+
+  geo.pad = pad; geo.gap = gap;
+  geo.poolW = trayEl.offsetWidth - 2;
+  geo.poolH = trayH - barH - 2;
+  geo.shelfW = (W - pad * 2 - 2) - badgeW;
+  geo.shelfH = rowH;
+
+  /* base tile size: eight across the tray */
+  var inner = Math.round(gap * 0.9);
+  var cols = 8;
+  if (W < 560) cols = 5;
+  var size = Math.floor((geo.poolW - inner * (cols + 1)) / cols);
+  var needRows = Math.ceil(CH.length / cols);
+  var maxH = Math.floor((geo.poolH - inner * (needRows + 1)) / needRows);
+  if (maxH < size) size = maxH;
+  if (size < 34) size = 34;
+  geo.tile = size;
+  geo.inner = inner;
+
+  render();
+}
+
+/* ---------- drawing ---------- */
+function tileNode(id) {
+  var ch = CH[id], g = GROUPS[ch.group];
+  var el = document.createElement("div");
+  el.className = "card" + (picked === id ? " picked" : "");
+  el.setAttribute("data-id", id);
+  el.style.background = g.tint;
+  el.style.borderTopColor = g.edge;
+  el.innerHTML = '<div class="mid"><span><em>' + ch.short + "</em></span></div>";
+  bindDrag(el, id);
+  return el;
+}
+
+function placeInto(host, ids, size, pad) {
+  var i, n = host.childNodes.length;
+  for (i = n - 1; i >= 0; i--) {
+    if (host.childNodes[i].className &&
+        host.childNodes[i].className.indexOf("card") === 0) {
+      host.removeChild(host.childNodes[i]);
+    }
+  }
+  var w = host.offsetWidth;
+  var cols = Math.floor((w - pad) / (size + pad));
+  if (cols < 1) cols = 1;
+  for (i = 0; i < ids.length; i++) {
+    var el = tileNode(ids[i]);
+    var r = Math.floor(i / cols), c = i % cols;
+    el.style.width = size + "px";
+    el.style.height = size + "px";
+    el.style.left = (pad + c * (size + pad)) + "px";
+    el.style.top = (pad + r * (size + pad)) + "px";
+    host.appendChild(el);
+    fitText(el, size);
+  }
+}
+
+function shelfSize(count) {
+  /* shrink tiles for a crowded tier until every one fits inside the row */
+  var size = geo.tile, pad = geo.inner, guard = 0;
+  if (count < 1) return size;
+  while (guard++ < 60) {
+    var cols = Math.floor((geo.shelfW - pad) / (size + pad));
+    var rowsFit = Math.floor((geo.shelfH - pad) / (size + pad));
+    if (cols > 0 && rowsFit > 0 && cols * rowsFit >= count) return size;
+    if (size <= 26) return 26;
+    size = Math.floor(size * 0.93);
+    if (size < 26) size = 26;
+  }
+  return size;
+}
+
+function fitText(el, size) {
+  var em = el.getElementsByTagName("em")[0];
+  if (!em) return;
+  var h = size - 14;
+
+  /* pass 1: biggest size that fits with no word broken across lines */
+  em.style.wordWrap = "normal";
+  em.style.overflowWrap = "normal";
+  var lo = 8, hi = Math.max(9, Math.round(size * 0.30)), best = 0;
+  while (lo <= hi) {
+    var mid = (lo + hi) >> 1;
+    em.style.fontSize = mid + "px";
+    if (em.scrollWidth <= em.clientWidth + 1 && em.scrollHeight <= h + 1) {
+      best = mid; lo = mid + 1;
+    } else hi = mid - 1;
+  }
+  if (best) { em.style.fontSize = best + "px"; return; }
+
+  /* pass 2: tile is too small for that - let long words wrap, fit on height */
+  em.style.wordWrap = "break-word";
+  em.style.overflowWrap = "break-word";
+  lo = 5; hi = Math.max(6, Math.round(size * 0.30)); best = lo;
+  while (lo <= hi) {
+    var m2 = (lo + hi) >> 1;
+    em.style.fontSize = m2 + "px";
+    if (em.scrollWidth <= em.clientWidth + 1 && em.scrollHeight <= h + 1) {
+      best = m2; lo = m2 + 1;
+    } else hi = m2 - 1;
+  }
+  em.style.fontSize = best + "px";
+}
+
+function render() {
+  placeInto(poolEl, lists.pool, geo.tile, geo.inner);
+  for (var t = 0; t < TIERS.length; t++) {
+    var k = TIERS[t];
+    placeInto(rows[k].shelf, lists[k], shelfSize(lists[k].length), geo.inner);
+  }
+  msgEl.style.display = lists.pool.length ? "none" : "block";
+  remainEl.innerHTML = lists.pool.length
+    ? lists.pool.length + " of " + CH.length + " still to place"
+    : "all placed";
+}
+
+function moveTo(id, key) {
+  var k;
+  for (k in lists) {
+    if (!lists.hasOwnProperty(k)) continue;
+    var out = [];
+    for (var i = 0; i < lists[k].length; i++) if (lists[k][i] !== id) out.push(lists[k][i]);
+    lists[k] = out;
+  }
+  lists[key].push(id);
+  picked = null;
+  render();
+}
+
+/* ---------- drag (mouse + touch, no pointer events) ---------- */
+function pt(e) {
+  if (e.touches && e.touches.length) return { x:e.touches[0].clientX, y:e.touches[0].clientY };
+  if (e.changedTouches && e.changedTouches.length)
+    return { x:e.changedTouches[0].clientX, y:e.changedTouches[0].clientY };
+  return { x:e.clientX, y:e.clientY };
+}
+
+function zoneAt(x, y) {
+  for (var t = 0; t < TIERS.length; t++) {
+    var r = rows[TIERS[t]].row.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return TIERS[t];
+  }
+  var tr = trayEl.getBoundingClientRect();
+  if (x >= tr.left && x <= tr.right && y >= tr.top && y <= tr.bottom) return "pool";
+  return null;
+}
+
+function clearOver() {
+  for (var t = 0; t < TIERS.length; t++) {
+    rows[TIERS[t]].row.className = "tier";
+  }
+  trayEl.className = "";
+}
+
+var justTapped = false;
+
+function zoneOfCard(id) {
+  var k;
+  for (k in lists) {
+    if (!lists.hasOwnProperty(k)) continue;
+    for (var i = 0; i < lists[k].length; i++) if (lists[k][i] === id) return k;
+  }
+  return "pool";
+}
+
+function bindDrag(el, id) {
+  function down(e) {
+    if (e.type === "mousedown" && e.button) return;
+    if (e.preventDefault) e.preventDefault();
+    var p0 = pt(e), moved = false, ghost = null;
+    var box = el.getBoundingClientRect();
+    var size = box.width;
+
+    function move(ev) {
+      if (ev.preventDefault) ev.preventDefault();
+      var p = pt(ev);
+      if (!moved && (Math.abs(p.x - p0.x) + Math.abs(p.y - p0.y)) > 8) {
+        moved = true;
+        ghost = el.cloneNode(true);
+        ghost.className = "card ghost";
+        ghost.style.position = "absolute";
+        ghost.style.width = size + "px";
+        ghost.style.height = size + "px";
+        document.body.appendChild(ghost);
+        fitText(ghost, size);
+        el.className = el.className + " lifted";
+      }
+      if (!moved) return;
+      ghost.style.left = (p.x - size / 2) + "px";
+      ghost.style.top = (p.y - size / 2 + (window.pageYOffset || 0)) + "px";
+      var hit = zoneAt(p.x, p.y);
+      clearOver();
+      if (hit === "pool") trayEl.className = "over";
+      else if (hit) rows[hit].row.className = "tier over";
+    }
+
+    function up(ev) {
+      document.removeEventListener("mousemove", move, false);
+      document.removeEventListener("mouseup", up, false);
+      document.removeEventListener("touchmove", move, false);
+      document.removeEventListener("touchend", up, false);
+      clearOver();
+      if (moved) {
+        if (ghost && ghost.parentNode) ghost.parentNode.removeChild(ghost);
+        var p = pt(ev), hit = zoneAt(p.x, p.y);
+        if (hit) moveTo(id, hit); else render();
+      } else {
+        justTapped = true;
+        setTimeout(function () { justTapped = false; }, 0);
+        if (picked !== null && picked !== id) {
+          /* a chapter is already held -> drop it where this tile lives */
+          moveTo(picked, zoneOfCard(id));
+        } else {
+          picked = (picked === id) ? null : id;
+          render();
+        }
+      }
+    }
+
+    document.addEventListener("mousemove", move, false);
+    document.addEventListener("mouseup", up, false);
+    document.addEventListener("touchmove", move, false);
+    document.addEventListener("touchend", up, false);
+  }
+  el.addEventListener("mousedown", down, false);
+  el.addEventListener("touchstart", down, false);
+}
+
+/* tapping a tier drops the picked chapter there */
+function tapZone(node, key) {
+  node.addEventListener("click", function () {
+    if (justTapped) return;
+    if (picked !== null) moveTo(picked, key);
+  }, false);
+}
+for (var t2 = 0; t2 < TIERS.length; t2++) tapZone(rows[TIERS[t2]].row, TIERS[t2]);
+tapZone(trayEl, "pool");
+
+/* ---------- the finished list ---------- */
+function resultText() {
+  var out = [], t, i;
+  for (t = 0; t < TIERS.length; t++) {
+    var k = TIERS[t], block = k + " TIER\n";
+    if (!lists[k].length) block += "  (empty)";
+    else {
+      var names = [];
+      for (i = 0; i < lists[k].length; i++) names.push("  - " + CH[lists[k][i]].name);
+      block += names.join("\n");
+    }
+    out.push(block);
+  }
+  if (lists.pool.length) {
+    var np = [];
+    for (i = 0; i < lists.pool.length; i++) np.push("  - " + CH[lists.pool[i]].name);
+    out.push("NOT PLACED\n" + np.join("\n"));
+  }
+  return out.join("\n\n");
+}
+
+document.getElementById("btnlist").onclick = function () {
+  document.getElementById("outin").innerHTML = "";
+  document.getElementById("outin").appendChild(document.createTextNode(resultText()));
+  outEl.style.display = "block";
+};
+document.getElementById("btnback").onclick = function () { outEl.style.display = "none"; };
+document.getElementById("btnreset").onclick = function () { reset(); };
+document.getElementById("btnhide").onclick = function () {
+  footEl.className = footEl.className ? "" : "hide";
+};
+document.getElementById("btncopy").onclick = function () {
+  var txt = resultText(), btn = this;
+  if (window.navigator && navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt);
+    btn.innerHTML = "Copied";
+  } else {
+    btn.innerHTML = "Select the text above";
+  }
+  setTimeout(function () { btn.innerHTML = "Copy list"; }, 1600);
+};
+
+/* keyboard still works when a keyboard is attached */
+document.addEventListener("keydown", function (e) {
+  var k = String.fromCharCode(e.keyCode || e.which).toLowerCase();
+  if (picked !== null && "sabcd".indexOf(k) > -1 && k !== "") moveTo(picked, k.toUpperCase());
+  else if (k === "r") reset();
+  else if (k === "x") document.getElementById("btnlist").onclick();
+}, false);
+
+/* stop the whole page bouncing on iPad */
+document.addEventListener("touchmove", function (e) {
+  if (!e.target || !e.target.closest) { e.preventDefault(); return; }
+  var n = e.target, inScroll = false;
+  while (n) { if (n.id === "outin") { inScroll = true; break; } n = n.parentNode; }
+  if (!inScroll) e.preventDefault();
+}, false);
+
+window.onresize = function () { layout(); };
+window.onorientationchange = function () { setTimeout(layout, 220); };
+reset();
+window.onload = function () { setTimeout(layout, 120); };
+</script>
+</body>
+</html>
